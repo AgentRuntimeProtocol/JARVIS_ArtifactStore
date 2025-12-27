@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from typing import Annotated
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, Header, HTTPException, Request, Response
 from fastapi.responses import FileResponse
+from arp_standard_model import Health, Status, VersionInfo
 from arp_standard_server import AuthSettings
 from arp_standard_server.auth import register_auth_middleware
 from pydantic import BaseModel
@@ -13,17 +15,6 @@ from .config import ArtifactStoreConfig, artifact_store_config_from_env
 from .errors import InvalidArtifactIdError, NotFoundError, StorageFullError
 from .filesystem import ArtifactMetadata, FilesystemArtifactStore
 from .utils import auth_settings_from_env_or_dev_secure, now
-
-
-class Health(BaseModel):
-    status: str
-    time: str
-
-
-class VersionInfo(BaseModel):
-    service_name: str
-    service_version: str
-    supported_api_versions: list[str]
 
 
 class ArtifactRef(BaseModel):
@@ -47,7 +38,7 @@ def create_app(
 
     @app.get("/v1/health", response_model=Health)
     async def health() -> Health:
-        return Health(status="ok", time=now())
+        return Health(status=Status.ok, time=datetime.now(timezone.utc))
 
     @app.get("/v1/version", response_model=VersionInfo)
     async def version() -> VersionInfo:
