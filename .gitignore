@@ -9,6 +9,7 @@ dist/
 .pyrightcache/
 .coverage
 artifacts/
+runs/
 .env
 .env.local
 .env.*
